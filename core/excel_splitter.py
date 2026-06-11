@@ -2,6 +2,7 @@
 
 import os
 import re
+from copy import copy
 from typing import Any, Callable
 
 from openpyxl import load_workbook, Workbook
@@ -10,17 +11,37 @@ from openpyxl.utils import get_column_letter
 
 def _read_header_area_and_widths(
     ws, header_row_num: int
-) -> tuple[list[list[Any]], dict[str, float], list[float | None]]:
-    """读取表头区域（第1行到 header_row_num 行）、列宽和各行行高。
+) -> tuple[list[list[Any]], list[list[dict | None]], list[str], dict[str, float], list[float | None]]:
+    """读取表头区域（第1行到 header_row_num 行）的值、样式、合并单元格、列宽和行高。
 
     返回:
-        header_rows: 表头区域所有行的数据（每行为 list）
+        header_rows: 表头区域所有行的值（每行为 list）
+        header_cell_styles: 对应每个单元格的样式字典，无样式为 None
+        merged_ranges: 表头区域内的合并单元格范围字符串列表
         column_widths: 列宽映射
         header_row_heights: 各表头行的行高列表
     """
     header_rows: list[list[Any]] = []
-    for row in ws.iter_rows(min_row=1, max_row=header_row_num, values_only=True):
-        header_rows.append(list(row))
+    header_cell_styles: list[list[dict | None]] = []
+
+    for row in ws.iter_rows(min_row=1, max_row=header_row_num):
+        row_values = []
+        row_styles = []
+        for cell in row:
+            row_values.append(cell.value)
+            if cell.has_style:
+                row_styles.append({
+                    "font": copy(cell.font),
+                    "fill": copy(cell.fill),
+                    "border": copy(cell.border),
+                    "alignment": copy(cell.alignment),
+                    "number_format": cell.number_format,
+                    "protection": copy(cell.protection),
+                })
+            else:
+                row_styles.append(None)
+        header_rows.append(row_values)
+        header_cell_styles.append(row_styles)
 
     # 列数取表头区域最大列数
     max_cols = max(len(r) for r in header_rows) if header_rows else 0
@@ -37,19 +58,36 @@ def _read_header_area_and_widths(
             ws.row_dimensions[r].height if r in ws.row_dimensions else None
         )
 
-    return header_rows, column_widths, header_row_heights
+    # 收集表头区域内的合并单元格
+    merged_ranges: list[str] = [
+        str(m) for m in ws.merged_cells.ranges if m.min_row <= header_row_num
+    ]
+
+    return header_rows, header_cell_styles, merged_ranges, column_widths, header_row_heights
 
 
 def _save_workbook(
-    new_wb, new_ws, ws_title, header_rows, rows_data,
-    column_widths, header_row_heights, out_path
+    new_wb, new_ws, ws_title, header_rows, header_cell_styles, merged_ranges,
+    rows_data, column_widths, header_row_heights, out_path
 ):
-    """写入表头区域和数据行，复制格式并保存。"""
+    """写入表头区域和数据行，复制样式、合并单元格并保存。"""
     new_ws.title = ws_title if ws_title else "Sheet1"
 
-    # 写入表头区域（所有行）
-    for row_data in header_rows:
-        new_ws.append(row_data)
+    # 写入表头区域（带样式，逐格写入以保留格式）
+    for row_idx, (row_data, row_styles) in enumerate(zip(header_rows, header_cell_styles), start=1):
+        for col_idx, (value, style) in enumerate(zip(row_data, row_styles), start=1):
+            cell = new_ws.cell(row=row_idx, column=col_idx, value=value)
+            if style:
+                cell.font = style["font"]
+                cell.fill = style["fill"]
+                cell.border = style["border"]
+                cell.alignment = style["alignment"]
+                cell.number_format = style["number_format"]
+                cell.protection = style["protection"]
+
+    # 重建合并单元格
+    for merge_range_str in merged_ranges:
+        new_ws.merge_cells(merge_range_str)
 
     # 写入数据行
     for row_data in rows_data:
@@ -113,7 +151,8 @@ def split_excel(
     ws = wb.active
 
     # 读取表头区域、列宽、行高
-    header_rows, column_widths, header_row_heights = _read_header_area_and_widths(ws, header_row_num)
+    header_rows, header_cell_styles, merged_ranges, column_widths, header_row_heights = \
+        _read_header_area_and_widths(ws, header_row_num)
 
     # 用最后一行（即实际列名行）来定位分组列
     header_names = header_rows[-1]
@@ -154,8 +193,8 @@ def split_excel(
         new_wb = Workbook()
         new_ws = new_wb.active
         _save_workbook(
-            new_wb, new_ws, ws.title, header_rows, rows,
-            column_widths, header_row_heights, out_path
+            new_wb, new_ws, ws.title, header_rows, header_cell_styles, merged_ranges,
+            rows, column_widths, header_row_heights, out_path
         )
         generated_files.append(out_path)
 
@@ -193,7 +232,8 @@ def split_excel_by_rows(
     ws = wb.active
 
     # 读取表头区域、列宽、行高
-    header_rows, column_widths, header_row_heights = _read_header_area_and_widths(ws, header_row_num)
+    header_rows, header_cell_styles, merged_ranges, column_widths, header_row_heights = \
+        _read_header_area_and_widths(ws, header_row_num)
 
     # 收集所有数据行（从表头区域下一行开始）
     all_rows: list[list[Any]] = []
@@ -225,8 +265,8 @@ def split_excel_by_rows(
         new_wb = Workbook()
         new_ws = new_wb.active
         _save_workbook(
-            new_wb, new_ws, ws.title, header_rows, chunk,
-            column_widths, header_row_heights, out_path
+            new_wb, new_ws, ws.title, header_rows, header_cell_styles, merged_ranges,
+            chunk, column_widths, header_row_heights, out_path
         )
         generated_files.append(out_path)
 

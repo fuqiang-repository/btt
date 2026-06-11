@@ -2,21 +2,19 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="cba9b18b-7a62-44b7-b3ba-57a8cd0fbb65" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/TemplateForge.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/分销协议制作/D-欧加隆2026年零售重点客户年度销售合作协议补充协议-季度机会品分销项目_ 模板.docx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/分销协议制作/D-欧加隆2026年零售重点客户年度销售合作协议补充协议-季度机会品分销项目_.docx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/分销协议制作/OGN-2026年零售重点客户-分销项目_附录A_零售重点客户名单对应的指标及折扣比例-线下v1_0319 (1).xlsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/分销协议制作/季度机会品分销协议内容汇总.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/TemplateForge.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/TemplateForge.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/excel_splitter.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/excel_splitter.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CopilotPersistence">
+    <persistenceIdMap>
+      <entry key="_C:/Users/Administrator/GitHub/fuqiang/btt" value="3ErALoPwhs9jnoTb5wcVQcUKHFr" />
+    </persistenceIdMap>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -39,7 +37,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "codeWithMe.voiceChat.enabledByDefault": "false",
     "git-widget-placeholder": "main",
-    "last_opened_file_path": "/Users/fuqiang/PycharmProjects/TemplateForge",
+    "last_opened_file_path": "C:/Users/Administrator/GitHub/fuqiang/btt",
     "nodejs_package_manager_path": "npm",
     "vue.rearranger.settings.migration": "true"
   }
@@ -99,6 +97,7 @@
       <workItem from="1780926261252" duration="7263000" />
       <workItem from="1781105457821" duration="203000" />
       <workItem from="1781105756953" duration="3472000" />
+      <workItem from="1781141451912" duration="736000" />
     </task>
     <servers />
   </component>
